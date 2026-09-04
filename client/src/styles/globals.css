@@ -4,59 +4,164 @@
 
 @layer base {
   body {
-    @apply bg-[#090D16] text-slate-100 antialiased min-h-screen selection:bg-brand-500/30 selection:text-brand-100;
+    @apply bg-[#060913] text-slate-100 antialiased min-h-screen selection:bg-brand-500/40 selection:text-white;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
-/* Custom Scrollbar */
+/* Custom High-Tech Cyber Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(6, 9, 19, 0.8);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.25);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.4), rgba(6, 182, 212, 0.4));
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.45);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.8), rgba(6, 182, 212, 0.8));
 }
 
-/* Glassmorphism Classes */
+/* High-Powered Cyber Grid Background */
+.cyber-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.cyber-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Dynamic Aurora Ambient Glow Orbs */
+.aurora-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-1 {
+  position: absolute;
+  top: -10%;
+  left: 15%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(99, 102, 241, 0) 70%);
+  filter: blur(60px);
+  animation: float 10s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+  position: absolute;
+  top: 25%;
+  right: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.14) 0%, rgba(6, 182, 212, 0) 70%);
+  filter: blur(70px);
+  animation: float 12s ease-in-out infinite alternate-reverse;
+}
+
+.orb-3 {
+  position: absolute;
+  bottom: 10%;
+  left: 30%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.13) 0%, rgba(168, 85, 247, 0) 70%);
+  filter: blur(80px);
+  animation: float 14s ease-in-out infinite alternate;
+}
+
+/* Glassmorphism & Specular Refraction Classes */
 .glass-panel {
-  background: rgba(17, 23, 38, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(15, 22, 38, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.5);
 }
 
 .glass-panel-hover {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-panel-hover:hover {
-  background: rgba(21, 28, 44, 0.85);
-  border-color: rgba(99, 102, 241, 0.3);
-  transform: translateY(-1px);
+  background: rgba(21, 30, 52, 0.85);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
 }
 
-.glass-card {
-  background: linear-gradient(135deg, rgba(21, 28, 44, 0.8) 0%, rgba(13, 18, 31, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+.glass-card-premium {
+  background: linear-gradient(145deg, rgba(21, 30, 52, 0.75) 0%, rgba(10, 15, 29, 0.85) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    0 10px 30px -5px rgba(0, 0, 0, 0.5);
 }
 
-/* Glow effects */
-.cyber-glow {
-  box-shadow: 0 0 20px -2px rgba(99, 102, 241, 0.35);
+.glass-card-premium:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 20px 40px -10px rgba(99, 102, 241, 0.2);
+}
+
+/* Holographic Shimmer Text */
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #a5b4fc 25%,
+    #38bdf8 50%,
+    #a5b4fc 75%,
+    #ffffff 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Animated Border Beam */
+.border-beam {
+  position: relative;
+}
+.border-beam::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.8) 50%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.border-beam:hover::after {
+  opacity: 1;
 }
 
 /* Code block highlight */
 pre {
-  background: #0b0f19 !important;
+  background: #070a14 !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1.15rem;
 }

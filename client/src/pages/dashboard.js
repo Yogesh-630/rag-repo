@@ -14,6 +14,7 @@ import {
   FileText,
   ThumbsUp,
   ThumbsDown,
+  Zap,
 } from 'lucide-react';
 import AppShell from '../components/AppShell/AppShell';
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
@@ -43,23 +44,26 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <Head>
-        <title>Operations Console - CollegeRAG_AI</title>
+        <title>Operations Console - CollegeRAG_AI Institutional Intelligence</title>
       </Head>
       <AppShell title="Operations Dashboard" subtitle="Real-time RAG Pipeline Health & Query Analytics">
         <div className="space-y-6 animate-fade-in">
           {/* Top Bar with Refresh Button */}
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-white tracking-tight">System Performance & Telemetry</h3>
+              <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                <span>System Performance & Telemetry</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              </h3>
               <p className="text-xs text-slate-400 font-mono">Aggregated metrics across institutional vector partitions</p>
             </div>
 
             <button
               onClick={fetchStats}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-100 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-mono transition-all"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-100/90 hover:bg-surface-50 text-slate-300 hover:text-white border border-white/10 hover:border-white/20 text-xs font-mono transition-all shadow-sm"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-cyber-cyan' : 'text-slate-400'}`} />
               <span>Refresh Metrics</span>
             </button>
           </div>
@@ -70,7 +74,7 @@ export default function DashboardPage() {
           {/* 2-Column Analytics Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column: Recent Queries Feed */}
-            <div className="lg:col-span-2 p-6 rounded-2xl bg-surface-200/80 border border-white/10 shadow-xl space-y-4">
+            <div className="lg:col-span-2 p-6 rounded-3xl glass-card-premium shadow-2xl space-y-4 border border-white/10 relative overflow-hidden">
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-brand-400" />
@@ -78,7 +82,7 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/executions"
-                  className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
+                  className="text-xs text-cyber-cyan hover:text-cyan-300 font-semibold flex items-center gap-1 transition-colors font-mono"
                 >
                   <span>View full audit log</span>
                   <ArrowRight className="w-3 h-3" />
@@ -95,15 +99,15 @@ export default function DashboardPage() {
                       <Link
                         key={q._id || idx}
                         href={`/executions/${q._id || q.id}`}
-                        className="p-3.5 rounded-xl bg-surface-100/70 hover:bg-surface-100 border border-white/5 hover:border-brand-500/30 transition-all flex items-center justify-between gap-3 block group"
+                        className="p-4 rounded-2xl bg-surface-200/80 hover:bg-surface-100 border border-white/5 hover:border-brand-500/40 transition-all flex items-center justify-between gap-3 block group shadow-sm"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold text-white truncate group-hover:text-brand-300 transition-colors">
+                          <p className="text-xs font-bold text-white truncate group-hover:text-brand-300 transition-colors">
                             {q.query}
                           </p>
                           <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 mt-1">
                             <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" /> {q.durationMs || 340}ms
+                              <Clock className="w-3 h-3 text-cyan-400" /> {q.durationMs || 340}ms
                             </span>
                             <span>•</span>
                             <span>{new Date(q.createdAt).toLocaleTimeString()}</span>
@@ -112,10 +116,10 @@ export default function DashboardPage() {
 
                         <div className="flex items-center gap-2 shrink-0">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border ${
                               isConfident
-                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                                : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-glow-emerald'
+                                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                             }`}
                           >
                             {scorePct}% Match
@@ -128,7 +132,7 @@ export default function DashboardPage() {
                     );
                   })
                 ) : (
-                  <p className="text-xs text-slate-500 text-center py-6">No queries executed yet.</p>
+                  <p className="text-xs text-slate-500 text-center py-6 font-mono">No queries executed yet.</p>
                 )}
               </div>
             </div>
@@ -136,68 +140,69 @@ export default function DashboardPage() {
             {/* Right Column: Knowledge Base Distribution & System Health */}
             <div className="space-y-6">
               {/* Category Breakdown */}
-              <div className="p-6 rounded-2xl bg-surface-200/80 border border-white/10 shadow-xl space-y-4">
+              <div className="p-6 rounded-3xl glass-card-premium shadow-2xl space-y-4 border border-white/10">
                 <div className="flex items-center gap-2 pb-3 border-b border-white/10">
                   <Layers className="w-4 h-4 text-cyan-400" />
-                  <h4 className="text-sm font-bold text-white">Document Coverage by Topic</h4>
+                  <h4 className="text-sm font-bold text-white">Document Coverage by Domain</h4>
                 </div>
 
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   {stats?.categories && Object.keys(stats.categories).length > 0 ? (
                     Object.entries(stats.categories).map(([cat, count]) => (
-                      <div key={cat} className="flex items-center justify-between text-xs">
-                        <span className="text-slate-300 font-medium">{cat}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 bg-surface-100 rounded-full h-1.5 overflow-hidden">
-                            <div
-                              className="bg-brand-500 h-full rounded-full"
-                              style={{ width: `${Math.min(count * 25, 100)}%` }}
-                            />
-                          </div>
-                          <span className="text-white font-mono font-bold w-4 text-right">{count}</span>
+                      <div key={cat} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-300 font-semibold">{cat}</span>
+                          <span className="text-white font-mono font-bold">{count} docs</span>
+                        </div>
+                        <div className="w-full bg-surface-300 rounded-full h-2 overflow-hidden border border-white/5">
+                          <div
+                            className="bg-gradient-to-r from-brand-500 to-cyber-cyan h-full rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(count * 25, 100)}%` }}
+                          />
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-xs text-slate-500 py-2">5 official categories active.</div>
+                    <div className="text-xs text-slate-500 py-2 font-mono">5 official domains active.</div>
                   )}
                 </div>
 
                 <div className="pt-2">
                   <Link
                     href="/documents"
-                    className="w-full py-2 bg-white/5 hover:bg-white/10 text-brand-300 hover:text-brand-200 text-xs font-semibold rounded-xl border border-white/5 transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 bg-white/5 hover:bg-brand-500/20 text-brand-300 hover:text-white text-xs font-bold rounded-xl border border-white/10 hover:border-brand-500/40 transition-all flex items-center justify-center gap-1.5 shadow-sm"
                   >
-                    <span>Manage Repository</span>
+                    <span>Manage Document Repository</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
 
               {/* Vector Health Status Card */}
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-surface-100 to-surface-200 border border-brand-500/20 shadow-xl space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-surface-200/90 via-surface-100/90 to-surface-300/90 border border-brand-500/30 shadow-2xl space-y-3.5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2">
                     <Database className="w-4 h-4 text-emerald-400 animate-pulse" />
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Vector DB Health</h4>
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Vector Engine</h4>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold shadow-glow-emerald">
                     Operational
                   </span>
                 </div>
 
-                <div className="space-y-1 text-xs font-mono text-slate-400">
-                  <div className="flex justify-between">
-                    <span>Engine:</span>
-                    <span className="text-slate-200">Cosine Memory Index</span>
+                <div className="space-y-1.5 text-xs font-mono text-slate-400 relative z-10">
+                  <div className="flex justify-between py-0.5 border-b border-white/5">
+                    <span>Engine Type:</span>
+                    <span className="text-slate-200 font-bold">Cosine Memory Index</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Vector Count:</span>
-                    <span className="text-slate-200">{stats?.vectorStatus?.totalVectors || 22}</span>
+                  <div className="flex justify-between py-0.5 border-b border-white/5">
+                    <span>Vectors Active:</span>
+                    <span className="text-white font-bold text-cyber-cyan">{stats?.vectorStatus?.totalVectors || 22}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Dimensions:</span>
-                    <span className="text-slate-200">1536 Float32</span>
+                  <div className="flex justify-between py-0.5">
+                    <span>Embed Dimensions:</span>
+                    <span className="text-slate-200 font-bold">1536 Float32</span>
                   </div>
                 </div>
               </div>
