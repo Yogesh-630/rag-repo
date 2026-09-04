@@ -1,0 +1,69 @@
+Project Specification: AI-Powered College Information Assistant (CollegeRAG_AI)Project Overview & Tech StackProject OverviewBuild a full-stack AI Operations Platform called AI-Powered College Information Assistant (CollegeRAG_AI) that enables students, faculty, and visitors to query official institutional resources—such as PDFs, notices, handbooks, fee structures, and academic calendars—via Retrieval-Augmented Generation (RAG). The platform extracts and chunks uploaded document text, generates vector embeddings, performs semantic similarity searches against a vector database, and synthesizes grounded answers with direct source citations. It includes student chat interfaces, administrative document management, role-based access control, execution audit logging, and real-time streaming updates.Tech StackFrontend: Next.js (Pages Router), React 19, Tailwind CSS, Zustand, Axios, Socket.IO client, and lucide-react icons.Backend: Node.js, Express, MongoDB, Mongoose, JSON Web Tokens, BullMQ on Redis (via ioredis), Socket.IO, helmet, morgan, compression, express-validator, and bcryptjs.AI & RAG Integration: OpenAI API (text-embedding-3-small, gpt-4o-mini) / Google Generative AI SDK, with LangChain and LlamaIndex available for RAG pipeline orchestration and vector retrieval.Vector Database: ChromaDB (local/MVP), Qdrant, or Pinecone for high-performance vector similarity search.Document Processing: pdfplumber, pypdf, and tesseract.js (OCR for scanned documents).Authentication, Knowledge Base, and RAG PipelineAuthentication & AuthorizationThe authentication system supports registration, login, JWT-based session handling, protected routes, an /api/auth/me profile endpoint, role separation between admin (document managers) and student (query operators), password hashing with bcryptjs at cost factor 12, and persistent login state on the client through Zustand.Knowledge Base & Document ProcessingAdmins can upload, version, update, tag, and delete college documents (.pdf, .docx, .txt). The ingestion service extracts text, applies optical character recognition (OCR) where applicable, and splits documents into manageable chunks (800 characters with 150-character overlap). Each chunk is tagged with metadata including docId, fileName, category (Admissions, Fees, Exams, Hostel, Placements, etc.), department, pageNumber, and uploadTimestamp.RAG Retrieval PipelineFor query processing, the backend runs each user prompt through a structured retrieval pipeline:Query Embedding: Converts the incoming student question into a 1536-dimensional vector using text-embedding-3-small.Hybrid Vector Search: Queries the vector database for top-$K$ ($K=4$) relevant chunks using Cosine Distance combined with keyword filtering.Re-Ranking & Score Thresholding: Evaluates context relevance scores. If top similarity score $S < 0.70$, the pipeline bypasses LLM generation and returns a structured unknown question response.Grounded Answer Synthesis: If $S \ge 0.70$, the LLM generates a response strictly grounded in the retrieved chunks and returns inline source citations (document name, page number, confidence score).Admin Management, Executions, AI Generation, and Real-Time LayerAdmin Document Management & AnalyticsThe admin dashboard allows administrators to upload new documents, view document indexing statuses, trigger background re-indexing, set department-level access rules, manage FAQs, and inspect analytics (popular queries, unanswered questions, document coverage, and user feedback ratings 👍 / 👎).Execution Engine & Audit LoggingThe backend persists every query event as a QueryExecution document with status (PENDING, PROCESSING, COMPLETED, FAILED), records query inputs, retrieved context chunks, similarity scores, LLM parameters, execution duration, and token consumption, and writes one ExecutionLog row per processing step. Users can view their chat history and export conversation transcripts.AI Generation & FallbacksWhen a query is submitted, the pipeline streams response tokens to the client interface. The system prefers OpenAI (gpt-4o-mini) when OPENAI_API_KEY is set, falls back to Google Gemini when GEMINI_API_KEY is set, and falls back to a deterministic fallback message when retrieval yields no high-confidence chunks.Real-Time LayerThe Socket.IO server broadcasts streaming response tokens, query status updates, and document processing progress (extraction, chunking, indexing) to connected client sockets. Real-time system notices persist in a notifications drawer in the AppShell.Frontend PagesThe application uses the Next.js Pages Router. The root / page redirects authenticated users to the chat or dashboard and unauthenticated users to login./ – Landing page introducing the college information assistant, available topics showcase, quick search preview, and responsive dark-theme interface./login – Authentication interface for students and admins with JWT handling, Zustand state synchronization, and error handling./register – User account creation form with role assignment, input validation, and session initialization./chat – Primary student interaction suite with dynamic prompt suggestions, streaming answer rendering, source citation badges, relevance score displays, answer feedback controls (👍 / 👎), and voice input options./dashboard – Overview console displaying query analytics (MetricGrid), top asked questions, document processing queues, system health indicators, and recent query logs./documents – Admin document management surface for multi-file upload, OCR processing status, department tags, category filters, and document deletion controls./executions – Comprehensive execution audit log listing all historical RAG query events, latency breakdowns, similarity thresholds, context payloads, and filtering controls./settings – Profile administration, role management, vector database health checks, API key statuses, and theme preferences.Backend Architecture & Database CollectionsBackend ArchitectureRoutes: Handles HTTP routing, request validation via express-validator, and middleware composition (auth, validation, error handler).Controllers: Request parsing and response shaping only (never talks directly to MongoDB).Services: Business logic ownership (document parsing, chunking, embedding generation, vector DB integration, RAG synthesis, token aggregation, notification dispatch).RAG Pipeline Layer: Holds document ingestion, chunking, hybrid retrieval, similarity re-ranking, prompt grounding, and fallback modules.Integrations Layer: Wraps external services (OpenAI, Gemini, Vector DB client, Tesseract OCR) behind unified internal interfaces.Queues Layer: Wraps BullMQ and Redis for asynchronous background document ingestion and vector indexing.Config Layer: Centralizes environment variables, MongoDB connection (with in-memory fallback), and Socket.IO configuration.Database CollectionsUsers: Stores authenticated user profiles (name, email, password with select: false, role: admin | student, department, lastLogin).Documents: Stores source file references (title, fileName, fileUrl, category, department, uploadBy, chunkCount, version, status: processing | indexed | failed).DocumentChunks: Stores individual chunk metadata (docId, content, pageNumber, chunkIndex, vectorId, metadata).QueryExecutions: Stores query execution records (userId, conversationId, query, response, retrievedChunks, topSimilarityScore, status, durationMs, feedback: upvote | downvote | none).ExecutionLogs: Stores granular timeline event steps (executionId, step: ingestion | retrieval | rerank | synthesis, level: info | warning | error | success, message, metadata).Conversations: Stores student chat sessions (userId, title, messages, createdAt, updatedAt).Notifications: Stores system alerts (owner, type, title, message, isRead).API EndpointsHealth and AuthGET /api/health – System heartbeat and status check.POST /api/auth/register – Register a new student or admin account.POST /api/auth/login – Authenticate user and issue JWT.GET /api/auth/me – Fetch current user profile.Document Management & IngestionGET /api/documents – List uploaded knowledge base documents with filtering and pagination.POST /api/documents/upload – Upload new document (.pdf, .docx) and trigger chunking & embedding queue.GET /api/documents/:id – Fetch single document details and chunk structure.DELETE /api/documents/:id – Remove document and purge associated vectors from vector database.RAG Chat & Query ProcessingPOST /api/chat/query – Main RAG execution endpoint (retrieves context, synthesizes answer, returns citations).GET /api/chat/conversations – List historical conversation threads for the user.GET /api/chat/conversations/:id – Retrieve individual chat thread messages and sources.POST /api/chat/feedback – Submit user satisfaction feedback (thumbs up / thumbs down) on generated answers.Admin Dashboard & Audit ExecutionsGET /api/admin/stats – Aggregated statistics (total queries, average latency, resolution rate, top topics).GET /api/executions – List detailed query execution logs.GET /api/executions/:id – Inspect query snapshot, retrieved chunks, and system timeline logs.Folder Structure & Development PhasesFrontend StructurePlaintextclient/
+└── src/
+    ├── components/
+    │   ├── AppShell/
+    │   ├── MetricGrid/
+    │   ├── ChatInterface/
+    │   ├── DocumentUploader/
+    │   ├── SourceCitationBadge/
+    │   └── ProtectedRoute/
+    ├── pages/
+    │   ├── _app.js
+    │   ├── index.js
+    │   ├── login.js
+    │   ├── register.js
+    │   ├── dashboard.js
+    │   ├── documents.js
+    │   ├── settings.js
+    │   ├── executions/
+    │   │   ├── index.js
+    │   │   └── [id].js
+    │   └── chat/
+    │       ├── index.js
+    │       └── [id].js
+    ├── store/
+    │   ├── authStore.js
+    │   └── chatStore.js
+    └── services/
+        ├── api.js
+        └── socket.js
+Backend StructurePlaintextserver/
+└── src/
+    ├── config/
+    │   ├── env.js
+    │   ├── db.js
+    │   └── socket.js
+    ├── routes/
+    │   ├── authRoutes.js
+    │   ├── documentRoutes.js
+    │   ├── chatRoutes.js
+    │   ├── executionRoutes.js
+    │   └── adminRoutes.js
+    ├── controllers/
+    │   ├── authController.js
+    │   ├── documentController.js
+    │   ├── chatController.js
+    │   └── executionController.js
+    ├── services/
+    │   ├── authService.js
+    │   ├── documentService.js
+    │   ├── ragService.js
+    │   ├── aiService.js
+    │   └── vectorDbService.js
+    ├── pipeline/
+    │   ├── extractor.js
+    │   ├── chunker.js
+    │   ├── embedder.js
+    │   ├── retriever.js
+    │   └── synthesizer.js
+    ├── models/
+    │   ├── User.js
+    │   ├── Document.js
+    │   ├── DocumentChunk.js
+    │   ├── QueryExecution.js
+    │   ├── ExecutionLog.js
+    │   ├── Conversation.js
+    │   └── Notification.js
+    └── queues/
+        └── ingestionQueue.js
+Development PhasesPhase 1: Project foundation (Next.js, Express, MongoDB with in-memory fallback, JWT auth, Zustand store, AppShell operator layout).Phase 2: Document management pipeline (PDF text extraction, chunking logic, metadata tagging, and vector database integration).Phase 3: RAG retrieval & execution engine (vector search, similarity score thresholds, grounded prompt templates, and LLM fallback chain).Phase 4: Student Chat Interface & real-time response streaming (Next.js UI, Socket.IO streaming, source citations, feedback mechanism).Phase 5: Admin Console, Analytics, and OCR integration (dashboard statistics, scanned PDF parsing, audit execution logs).Phase 6: BullMQ background indexing queues, streaming optimization, notification drawer, and deployment verification.UI, Security, Outcome, and Codex InstructionsUI and UX RequirementsThe UI uses a clean operator-console aesthetic built with Tailwind CSS, fully responsive layouts, loading states, and skeleton loaders. It renders chat messages with animated streaming text, displays dynamic source badges linked to page numbers and relevance percentages, provides drag-and-drop document upload surfaces with real-time indexing status bars, renders execution audit logs with color-coded step badges (ingestion, retrieval, rerank, synthesis), and includes a notifications drawer accessible from the AppShell.Security RequirementsPasswords hashed with bcryptjs at cost factor 12.JWTs signed and verified using JWT_SECRET.API keys and database strings managed strictly through process env configs.HTTP security headers applied via helmet.CORS restricted to CLIENT_URL.Rate-limiting applied to auth and chat endpoints via express-rate-limit.Request payloads validated using express-validator.Internal documents secured behind role-based access controls (RBAC).Unmatched or low-confidence queries raise explicit missing context fallback notices rather than hallucinated responses.Final Expected OutcomeA student or faculty member can ask any college-related question in plain language, receive a grounded answer based strictly on uploaded documents, view the exact source file and page references used, see confidence ratings, and submit feedback—backed by asynchronous background document ingestion, vector database semantic retrieval, full audit logging, and an administrative control panel.Codex & AI Agent Implementation InstructionsBuild phase by phase following the folder structure strictly.Keep controllers thin; place all core logic inside services and pipeline modules.Keep pipeline components modular (separate extraction, chunking, retrieval, and generation logic).Wrap vector database interactions behind a single vectorDbService.js interface.Never call MongoDB directly from a controller.Treat all environment variables dynamically through process env configs.Fall back to in-memory stores when MongoDB or Redis is unavailable so local dev runs seamlessly.Emit a Socket.IO event and write one ExecutionLog for every RAG step during query execution.Report created or changed files at the completion of each phase.
