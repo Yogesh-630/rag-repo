@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build --prefix client",
+  "outputDirectory": "client/.next",
+  "installCommand": "npm install --prefix client",
+  "framework": "nextjs",
+  "devCommand": "npm run dev --prefix client",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./client"
+}
