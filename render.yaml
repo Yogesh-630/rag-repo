@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: collegerag-ai-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLIENT_URL
+        sync: false   # Set this in Render dashboard = your Vercel URL e.g. https://your-app.vercel.app
+      - key: JWT_SECRET
+        sync: false   # Set a strong secret in Render dashboard
+      - key: MONGODB_URI
+        sync: false   # Leave blank to use resilient in-memory mode, or add MongoDB Atlas URI
+      - key: SUPABASE_URL
+        value: https://zbsgnpnkopxyopyovfng.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false   # Set in Render dashboard
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false   # Set in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false   # Set in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false   # Optional - Set in Render dashboard
+      - key: SIMILARITY_THRESHOLD
+        value: "0.70"
+      - key: TOP_K_CHUNKS
+        value: "4"
+      - key: CHUNK_SIZE
+        value: "800"
+      - key: CHUNK_OVERLAP
+        value: "150"
+      # Redis is NOT needed - app uses resilient in-memory queue on free tier
